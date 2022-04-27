@@ -18,6 +18,7 @@ const Config = t.intersection([
     {
       PORT: PositiveIntFromString,
       RSS_FEED: NonEmptyString,
+      SECRET: NonEmptyString,
     },
     'Mandatory Environment Variables',
   ),
@@ -39,6 +40,7 @@ const envars =
         ...process.env,
         PORT: process.env.PORT ?? '4000',
         RSS_FEED: process.env.RSS_FEED ?? 'https://example.com/rss',
+        SECRET: process.env.SECRET ?? 'xxxxxxxxxxxxxxxxxxxxxxx',
       }
 
 // decode environment variables
@@ -51,6 +53,7 @@ const cfg = pipe(
   }, identity),
 )
 
-export const PORT = cfg.PORT
 export const NODE_ENV = cfg.NODE_ENV ?? 'development'
+export const PORT = cfg.PORT
 export const RSS_FEED = cfg.RSS_FEED
+export const SECRET = cfg.SECRET
