@@ -1,0 +1,17 @@
+.dockerignore
+.editorconfig
+.env.example
+.eslintignore
+.eslintrc.json
+.eslintcache
+.gitattributes
+.gitignore
+.prettierrc.yml
+Dockerfile
+jest.config.js
+*.md
+*.rest
+*.json
+/.git
+/.github
+/coverage

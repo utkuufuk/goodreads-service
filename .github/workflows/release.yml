@@ -1,0 +1,29 @@
+name: Release
+
+on:
+  push:
+    tags:
+    - 'v*.*.*'
+
+jobs:
+  docker:
+    name: Push Docker image to GitHub Packages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Prepare tags
+        id: prep
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          TAGS="${VERSION},latest"
+          echo ::set-output name=tags::${TAGS}
+      - name: Push to GitHub Packages
+        uses: docker/build-push-action@v1
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: docker.pkg.github.com
+          repository: utkuufuk/goodreads-service/image
+          tags: ${{ steps.prep.outputs.tags }}
