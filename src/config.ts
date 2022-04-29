@@ -6,54 +6,49 @@
  */
 require('dotenv').config()
 import * as E from 'fp-ts/Either'
-import { identity, pipe } from 'fp-ts/function'
+import { pipe } from 'fp-ts/function'
 import * as t from 'io-ts'
 import { NonEmptyString } from 'io-ts-types'
 import { PositiveIntFromString } from 'io-ts-types-ext'
 import { failure } from 'io-ts/PathReporter'
 
-const Config = t.intersection([
-  // mandatory envars
-  t.type(
-    {
-      PORT: PositiveIntFromString,
-      RSS_FEED: NonEmptyString,
-      SECRET: NonEmptyString,
-    },
-    'Mandatory Environment Variables',
-  ),
-
-  // optional envars
-  t.partial(
-    {
-      NODE_ENV: t.union([t.literal('test'), t.literal('development'), t.literal('production')]),
-    },
-    'Optional Environment Variables',
-  ),
-])
-
-// set dummy variables for missing mandatory environment variables during development and testing
-const envars =
-  process.env.NODE_ENV === 'production'
-    ? process.env
-    : {
-        ...process.env,
-        PORT: process.env.PORT ?? '4000',
-        RSS_FEED: process.env.RSS_FEED ?? 'https://example.com/rss',
-        SECRET: process.env.SECRET ?? 'xxxxxxxxxxxxxxxxxxxxxxx',
-      }
-
-// decode environment variables
-const cfg = pipe(
-  envars,
-  Config.decode,
-  E.mapLeft(errors => failure(errors).join(', ')),
-  E.fold(err => {
-    throw new Error(`Could not parse environment variables: ${err}`)
-  }, identity),
+const MandatoryConfig = t.type(
+  {
+    PORT: PositiveIntFromString,
+    RSS_FEED: NonEmptyString,
+    SECRET: NonEmptyString,
+  },
+  'MandatoryEnvironmentVariables',
 )
+type MandatoryConfig = t.TypeOf<typeof MandatoryConfig>
 
-export const NODE_ENV = cfg.NODE_ENV ?? 'development'
-export const PORT = cfg.PORT
-export const RSS_FEED = cfg.RSS_FEED
-export const SECRET = cfg.SECRET
+const OptionalConfig = t.partial(
+  {
+    NODE_ENV: t.union([t.literal('test'), t.literal('development'), t.literal('production')]),
+  },
+  'OptionalEnvironmentVariables',
+)
+type OptionalConfig = t.TypeOf<typeof OptionalConfig>
+
+const NON_PROD_DEFAULTS: { [K in keyof MandatoryConfig]: string } = {
+  PORT: '4000',
+  RSS_FEED: 'https://example.com/rss',
+  SECRET: 'xxxxxxxxxxxxxxxxxxxxxxx',
+}
+
+// default values for optional variables applicable in all environments, including production
+const ALL_ENV_DEFAULTS: Required<Pick<OptionalConfig, 'NODE_ENV'>> = {
+  NODE_ENV: 'development',
+}
+
+export default pipe(
+  process.env.NODE_ENV === 'production' ? process.env : { ...NON_PROD_DEFAULTS, ...process.env },
+  t.intersection([MandatoryConfig, OptionalConfig]).decode,
+  E.mapLeft(errors => failure(errors).join(', ')),
+  E.fold(
+    message => {
+      throw new Error(`Could not parse environment variables: ${message}`)
+    },
+    config => ({ ...ALL_ENV_DEFAULTS, ...config }),
+  ),
+)

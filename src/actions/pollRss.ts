@@ -2,13 +2,13 @@ import chalk from 'chalk'
 import * as E from 'fp-ts/Either'
 import { pipe } from 'fp-ts/function'
 
-import { RSS_FEED } from '../config'
+import cfg from '../config'
 import * as logger from '../logger'
 import { poll } from '../rss'
 
 export const pollRss = async (): Promise<void> => {
   pipe(
-    await poll(RSS_FEED),
+    await poll(cfg.RSS_FEED),
     E.fold(
       err => logger.error(`Could not poll RSS feed: ${err}`),
       items => {
