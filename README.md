@@ -1,9 +1,7 @@
 # goodreads-service
 [![CI](https://github.com/utkuufuk/goodreads-service/actions/workflows/ci.yml/badge.svg)](https://github.com/utkuufuk/goodreads-service/actions/workflows/ci.yml)
-![Latest Release](https://img.shields.io/github/release/utkuufuk/goodreads-service.svg)
-[![Coverage Status](https://coveralls.io/repos/github/utkuufuk/goodreads-service/badge.svg)](https://coveralls.io/github/utkuufuk/goodreads-service)
 
-A simple service to poll an RSS feed from [Goodreads](https://www.goodreads.com). Can be used as a data source for [`entrello`](https://github.com/utkuufuk/entrello).
+A simple service to poll an RSS feed, e.g. the contents of a shelf, from [Goodreads](https://www.goodreads.com). Can be used as a data source for [`entrello`](https://github.com/utkuufuk/entrello).
 
 ## Development
 Create a `.env` file in the project root directory based on `.env.example`.
